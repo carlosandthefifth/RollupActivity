@@ -19,7 +19,7 @@ public with sharing class RollupTriggerHelper {
     private static boolean isEvent = false;
     private static boolean isTask = false;
 
-    private static List <SObject> buildSObjectList(ID[] idsToFind) {
+    private static List <SObject> buildSObjectList(ID[] idsToFind, boolean isDelete) {
         String whatObject;
         List <SObject> sObjectList;
         ID[] accountIDs = new ID[0];
@@ -61,6 +61,12 @@ system.debug('1');
                 system.debug('3');
                 system.debug('t.whatid: ' + t.whatid);
                 cnt = accountCntMap.get(t.whatid) + 1;
+                if (isDelete) {
+                    if (cnt > 0)
+                        cnt--;
+                    else
+                        cnt = 0;
+                }
 
                 system.debug('cnt: ' + cnt);
                 system.debug('t.whatId: ' + t.whatId);
@@ -159,7 +165,7 @@ DoActivities (activities);
                 Ids.add(t.whatId);
 
         }
-        buildSObjectList(Ids);
+        buildSObjectList(Ids, isDelete);
     }
 
     private static void SetEventTaskCountWhoIdandWhatId(ID whoId, ID whatId, boolean isTask, boolean isEvent, boolean isDelete) {
