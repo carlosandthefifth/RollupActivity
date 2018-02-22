@@ -405,11 +405,11 @@ WhoId     and     WhatID
         delete Tasks;
         checkAccount = [SELECT a.Task_Count__c FROM Account a where id =:NewAccount.id];
         system.assertequals(0, checkAccount.Task_Count__c, 'test 1 - delete - checkAccount.Task_Count__c does not equal 0');
-/*
+
         undelete Tasks;
         checkAccount = [SELECT a.Task_Count__c FROM Account a where id =:NewAccount.id];
         system.assertequals(numORecords, checkAccount.Task_Count__c, 'test 1 - undelete - checkAccount.Task_Count__c does not equal 1');
-*/
+
         test.stoptest();
 
 /*
