@@ -23,23 +23,68 @@ public with sharing class RollupTriggerHelper {
         String whatObject;
         List <SObject> sObjectList;
         ID[] accountIDs = new ID[0];
+        Map <Id, Integer> accountCntMap = new Map <Id, Integer>();
+        Integer cnt;
+
+        List <Account> updateAccounts = new List <Account>();
+
+system.debug('idsToFind: ' + idsToFind);
+
         ID[] contactIDs = new ID[0];
         ID[] leadIDs = new ID[0];
         ID[] opportunityIds = new ID[0];
         for (ID idToFind : idsToFind) {
-            if (idToFind.getSObjectType() == accountType)
+system.debug('idToFind: ' + idToFind);
+            if (idToFind.getSObjectType() == accountType) {
+system.debug('adding to accountids');
                 accountIds.add(idToFind);
-            else if (idToFind.getSObjectType() == contactType)
+            }
+            else if (idToFind.getSObjectType() == contactType) {
+system.debug('adding to contactsids');
                 contactIds.add(idToFind);
-            else if (idToFind.getSObjectType() == opportunityType)
+            }
+            else if (idToFind.getSObjectType() == opportunityType) {
+system.debug('adding to opportunityids');
                 opportunityIds.add(idToFind);
-            else if (idToFind.getSObjectType() == leadType)
+            }
+            else if (idToFind.getSObjectType() == leadType) {
+system.debug('adding to leadids');
                 leadIds.add(idToFind);
+            }
         }
 
+system.debug('1');
         if (accountIds.size() > 0) {
-            String queryString = 'SELECT ID, Event_Count__c from Account where id  in :accountIds';
+            for (ID accountId : accountIds) accountCntMap.put(accountId, 0); // Set the accountid, cnt
+            system.debug('2 accountids: ' + accountids);
+            for (Task t : [SELECT Id, whatId FROM Task WHERE whatId IN :accountIDs]) {
+                system.debug('3');
+                system.debug('t.whatid: ' + t.whatid);
+                cnt = accountCntMap.get(t.whatid) + 1;
+
+                system.debug('cnt: ' + cnt);
+                system.debug('t.whatId: ' + t.whatId);
+
+                accountCntMap.put(t.whatId, cnt);
+
+            }
+            for (Account acct : [SELECT id, Event_Count__c FROM Account WHERE Id IN :accountIDs]) {
+                cnt = accountCntMap.get(acct.Id);
+                system.debug('2 cnt: ' + cnt);
+                system.debug('acct.id: ' + acct.Id);
+                acct.Task_Count__c = cnt;
+                updateAccounts.add(acct);
+            }
+            Database.update(updateAccounts);
+/*
+
+            String queryString = 'SELECT ID, Event_Count__c from Account where id  in :accountIds'; // so that we can update Event_Count__c
             sObjectList = Database.query(queryString);
+
+            cnt = [SELECT Count() FROM Task t where t.whatId IN :accountIds];
+            if (isDelete) cnt = cnt - 1;
+            findAccount.Event_Count__c = cnt;
+*/
         }
 
         if (contactIds.size() > 0) {

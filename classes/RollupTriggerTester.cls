@@ -388,7 +388,7 @@ WhoId     and     WhatID
         Task[] Tasks = new Task[] {};
         Task   T;
         Integer cnt;
-        Integer numORecords = 1;
+        Integer numORecords = 1000;
         newAccount = new Account(name='test');
         insert newAccount;
         // Three DML tests for our trigger
@@ -401,7 +401,7 @@ WhoId     and     WhatID
         insert Tasks;
     	checkAccount = [SELECT a.Task_Count__c FROM Account a where id =:NewAccount.id];
     	system.assertequals(numORecords, checkAccount.Task_Count__c, 'test 1 - insert - checkAccount.Task_Count__c does not equal 1');
-
+/*
         delete Tasks;
         checkAccount = [SELECT a.Task_Count__c FROM Account a where id =:NewAccount.id];
         system.assertequals(0, checkAccount.Task_Count__c, 'test 1 - delete - checkAccount.Task_Count__c does not equal 0');
@@ -409,10 +409,10 @@ WhoId     and     WhatID
         undelete Tasks;
         checkAccount = [SELECT a.Task_Count__c FROM Account a where id =:NewAccount.id];
         system.assertequals(numORecords, checkAccount.Task_Count__c, 'test 1 - undelete - checkAccount.Task_Count__c does not equal 1');
-
+*/
         test.stoptest();
 
- /*
+/*
         // Task Test #2 - opportunity null
         newOpportunity = new Opportunity(name='million dollar deal', closedate=date.today()+10, StageName= 'prospecting');
         insert newOpportunity;
