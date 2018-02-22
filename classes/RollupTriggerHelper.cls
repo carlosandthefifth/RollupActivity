@@ -1,6 +1,5 @@
 public with sharing class RollupTriggerHelper {
-	
-   // show comparison variables 
+    // show comparison variables 
 	private	static Schema.SObjectType eventType = Schema.getGlobalDescribe().get('Event'); 
 	private	static Schema.SObjectType taskType = Schema.getGlobalDescribe().get('Task'); 
 	private	static Schema.SObjectType accountType = Schema.getGlobalDescribe().get('Account'); 
