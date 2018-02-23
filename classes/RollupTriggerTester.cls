@@ -6,7 +6,7 @@ TODO:
 2.  Check bulkify
 3.  Check for events for specific times and all day
 4.  Recurring events?
-5.
+5.  Can we have mixed sobjects in a single transaction
 */
 
     /*
@@ -40,6 +40,7 @@ WhoId     and     WhatID
         insert newAccount;
         Task T = new Task(subject='test', status='not started', priority='normal', whatid=newAccount.id);
         // Three DML tests for our trigger
+system.debug('test 1 - id: ' + newAccount.id);
         insert T;
         checkAccount = [SELECT a.Task_Count__c FROM Account a where id =:NewAccount.id];
         system.assertequals(1, checkAccount.Task_Count__c, 'test 1 - insert - checkAccount.Task_Count__c does not equal 1');
@@ -57,6 +58,8 @@ WhoId     and     WhatID
         insert newOpportunity;
         T = new Task(subject='test', status='not started', priority='normal', whatid=newOpportunity.id);
         // Three DML tests for our trigger
+        system.debug('test 2 - id: ' + newOpportunity.id);
+
         insert T;
         checkOpportunity = [SELECT o.Task_Count__c FROM Opportunity o where id =:newOpportunity.id];
         system.assertequals(1, checkOpportunity.Task_Count__c, 'test 2 - insert - checkOpportunity.Task_Count__c does not equal 1');
@@ -75,6 +78,7 @@ WhoId     and     WhatID
         insert newContact;
         T = new Task(subject='test', status='not started', priority='normal', whoid=newContact.id);
         // Three DML tests for our trigger
+        system.debug('test 3 - id: ' + newContact.id);
         insert T;
         checkContact = [SELECT c.Task_Count__c FROM Contact c where id =:newContact.id];
         system.assertequals(1, checkContact.Task_Count__c, 'test 3 - insert - checkContact.Task_Count__c does not equal 1');
@@ -94,6 +98,8 @@ WhoId     and     WhatID
         checkLead = [SELECT l.Task_Count__c FROM Lead l where id =:newLead.id];
         T = new Task(subject='test', status='not started', priority='normal', whoid=newLead.id);
         // Three DML tests for our trigger
+        system.debug('test 4 - id: ' + newLead.id);
+
         insert T;
         checkLead = [SELECT l.Task_Count__c FROM Lead l where id =:newLead.id];
         system.assertequals(1, checkLead.Task_Count__c, 'test 4 - insert - checkLead.Task_Count__c does not equal 1');
@@ -114,23 +120,24 @@ WhoId     and     WhatID
         insert newAccount;
         T = new Task(subject='test', status='not started', priority='normal', whatid=newAccount.id, whoid=newContact.id);
         // Three DML tests for our trigger
+        system.debug('test 5 - id: ' + newContact.id + ',' + newAccount.id);        
         insert T;
         checkContact = [SELECT c.Task_Count__c FROM Contact c where id =:newContact.id];
         system.assertequals(1, checkContact.Task_Count__c, 'test 5 - insert - newContact.Task_Count__c does not equal 1');
 
-        checkAccount = [SELECT a.Task_Count__c FROM Account a where id =:NewAccount.id];
+        checkAccount = [SELECT a.Task_Count__c FROM Account a where id =:newAccount.id];
         system.assertequals(1, checkAccount.Task_Count__c, 'test 5 - insert - newAccount.Task_Count__c does not equal 1');
 
         delete T;
         checkContact = [SELECT c.Task_Count__c FROM Contact c where id =:newContact.id];
         system.assertequals(0, checkContact.Task_Count__c, 'test 5 - delete - newContact.Task_Count__c does not equal 0');
-        checkAccount = [SELECT a.Task_Count__c FROM Account a where id =:NewAccount.id];
+        checkAccount = [SELECT a.Task_Count__c FROM Account a where id =:newAccount.id];
         system.assertequals(0, checkAccount.Task_Count__c, 'test 5 - delete - newAccount.Task_Count__c does not equal 1');
 
         undelete T;
         checkContact = [SELECT c.Task_Count__c FROM Contact c where id =:newContact.id];
         system.assertequals(1, checkContact.Task_Count__c, 'test 5 - undelete - newContact.Task_Count__c does not equal 1');
-        checkAccount = [SELECT a.Task_Count__c FROM Account a where id =:NewAccount.id];
+        checkAccount = [SELECT a.Task_Count__c FROM Account a where id =:newAccount.id];
         system.assertequals(1, checkAccount.Task_Count__c, 'test 5 - undelete - newAccount.Task_Count__c does not equal 1');
 
 
