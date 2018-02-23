@@ -5,7 +5,7 @@ public with sharing class RollupTriggerHelper {
 			Revision Notes:
 			February 22, 2018 - hitting SOQL query limit
 
-	*/
+  	*/
     // show comparison variables
     private	static Schema.SObjectType eventType = Schema.getGlobalDescribe().get('Event');
     private	static Schema.SObjectType taskType = Schema.getGlobalDescribe().get('Task');
