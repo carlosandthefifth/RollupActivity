@@ -34,7 +34,6 @@ WhoId     and     WhatID
     private static Lead checkLead;
 
     static testMethod void DMLTaskTEST() {
-        test.starttest();
         // Task Test #1 - account null
         newAccount = new Account(name='test');
         insert newAccount;
@@ -83,6 +82,7 @@ WhoId     and     WhatID
         checkContact = [SELECT c.Task_Count__c FROM Contact c where id =:newContact.id];
         system.assertequals(0, checkContact.Task_Count__c, 'test 3 - delete - checkContact.Task_Count__c does not equal 0');
 
+        test.starttest();
         undelete T;
         checkContact = [SELECT c.Task_Count__c FROM Contact c where id =:newContact.id];
         system.assertequals(1, checkContact.Task_Count__c, 'test 3 - undelete - newContact.Task_Count__c does not equal 1');
@@ -183,6 +183,7 @@ WhoId     and     WhatID
         insert newLead;
         T = new Task(subject='test', status='not started', priority='normal',  whoid=newLead.id);
         // Three DML tests for our trigger
+
         insert T;
         checkLead = [SELECT l.Task_Count__c FROM Lead l where id =:newLead.id];
         system.assertequals(1, checkLead.Task_Count__c, 'test 8 - insert - newLead.Task_Count__c does not equal 1');
@@ -206,7 +207,6 @@ WhoId     and     WhatID
     }
 
     static testMethod void DMLEventTEST() {
-    	test.starttest();
         // Event Test #1 - account null
         newAccount = new Account(name='test');
         insert newAccount;
@@ -217,6 +217,7 @@ WhoId     and     WhatID
         checkAccount = [SELECT a.Event_Count__c FROM Account a where id =:NewAccount.id];
         system.assertequals(1, checkAccount.Event_Count__c, 'test 1 - insert - checkAccount.Event_Count__c does not equal 1');
 
+system.debug('before delete: ' + checkAccount.Event_Count__c);
         delete E;
         checkAccount = [SELECT a.Event_Count__c FROM Account a where id =:NewAccount.id];
         system.assertequals(0, checkAccount.Event_Count__c, 'test 1 - delete - checkAccount.Event_Count__c does not equal 0');
@@ -324,6 +325,7 @@ WhoId     and     WhatID
         checkLead = [SELECT l.Event_Count__c FROM Lead l where id =:newLead.id];
         system.assertequals(1, checkLead.Event_Count__c, 'test 6 - insert - newLead.Event_Count__c does not equal 1');
 
+        test.starttest();
         // Event Test #7 - opportunity   contact
         newOpportunity = new Opportunity(name='million dollar deal', closedate=date.today()+10, StageName= 'prospecting');
         insert newOpportunity;
