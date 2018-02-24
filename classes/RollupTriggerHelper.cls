@@ -5,6 +5,10 @@ public with sharing class RollupTriggerHelper {
         Revision Notes:
             February 22, 2018 - hitting SOQL query limit : Fixed February 23, 2018 20:05
             February 23, 2018 - 22:39 - subtraction is not correct
+            February 24, 2018 - 07:07 - subtraction corrected
+             :: Todo list worry about update to task/events
+             :: We need to test more partial deletes
+
   	*/
 
     // Comparison variables - global to helper class
@@ -20,7 +24,7 @@ public with sharing class RollupTriggerHelper {
     private static boolean isEvent = false;
     private static boolean isTask = false;
 
-    private static void buildSObjectList(ID[] idsToFind, boolean isTask, boolean isDelete) {
+    private static void buildSObjectList(ID[] idsToFind, boolean isTask) {
         /*
             Handles the heavy lifting of counting tasks/events for accounts, opportunities, leads and contacts
         */
@@ -69,67 +73,18 @@ public with sharing class RollupTriggerHelper {
             if (!isAccount) {
                 isAccount = (idToFind.getSObjectType() == accountType);
             }
-            if (isDelete) {
-                if (idToFind.getSObjectType() == accountType) {
-                    if (isTask) {
-                        Account a  = [SELECT ID, Task_Count__c FROM Account WHERE  Id = :idToFind];
-                        sObjectCntMap.put(idToFind, (Integer) a.Task_Count__c);
-                    }
-                    else {
-                        Account a  = [SELECT Event_Count__c FROM Account WHERE  Id = :idToFind];
-                        sObjectCntMap.put(idToFind, (Integer) a.Event_Count__c);
-                    }
-                }
-            }
 
             if (!isContact) {
                 isContact = (idToFind.getSObjectType() == contactType);
-            }
-            if (isDelete) {
-                if (idToFind.getSObjectType() == contactType) {
-                    if (isTask) {
-                        Contact c  = [SELECT Task_Count__c FROM Contact WHERE  Id = :idToFind];
-                        sObjectCntMap.put(idToFind, (Integer) c.Task_Count__c);
-                    }
-                    else {
-                        Contact c  = [SELECT Event_Count__c FROM Contact WHERE  Id = :idToFind];
-                        sObjectCntMap.put(idToFind,  (Integer) c.Event_Count__c);
-                    }
-                }
             }
 
             if (!isLead) {
                 isLead  = (idToFind.getSObjectType() == leadType);
             }
-            if (isDelete) {
-                if (idToFind.getSObjectType() == leadType) {
-                    if (isTask) {
-                        Lead l  = [SELECT Task_Count__c FROM Lead WHERE  Id = :idToFind];
-                        sObjectCntMap.put(idToFind, (Integer) l.Task_Count__c);
-                    }
-                    else {
-                        Lead l  = [SELECT Event_Count__c FROM Lead WHERE  Id = :idToFind];
-                        sObjectCntMap.put(idToFind, (Integer) l.Event_Count__c);
-                    }
-                }
-            }
             if (!isOpportunity) {
                 isOpportunity = (idToFind.getSObjectType() == opportunityType);
             }
-            if (isDelete) {
-                if (idToFind.getSObjectType() == opportunityType) {
-                    if (isTask) {
-                        Opportunity o  = [SELECT Task_Count__c FROM Opportunity WHERE  Id = :idToFind];
-                        sObjectCntMap.put(idToFind, (Integer) o.Task_Count__c);
-                    }
-                    else {
-                        Opportunity o  = [SELECT Event_Count__c FROM Opportunity WHERE  Id = :idToFind];
-                        sObjectCntMap.put(idToFind, (Integer) o.Event_Count__c);
-                    }
-                }
-            }
         }
-system.debug('1');
 
         // Query tasks that are related to whatId (Accounts, Opportunities)
         soqlQuery = 'SELECT Id, whatid FROM '+ activityType.get(isTask) +' WHERE  whatId IN :idsToFind';
@@ -139,83 +94,31 @@ system.debug('1');
         soqlQuery = 'SELECT Id, whoid FROM '+ activityType.get(isTask) +' WHERE whoId IN :idsToFind';
         whoActivities =  Database.query(soqlQuery);
 
-
-system.debug('2');
-
         if (whatActivities.size() > 0) {
-system.debug('2.1');
             for (SObject a : whatActivities) {
-system.debug('2.2');
                 // loop through all whatid activities
                 if (isTask){
-system.debug('2.3');
                     T = (Task) a; // convert SObject whatActivities to Task
-system.debug('2.4 what ' + T.whatId + 'a: ' + a);
-                    cnt = SObjectCntMap.get(T.whatid); // find id in list
-                    if (isDelete) {
-                        if (cnt > 0)
-                            cnt--;
-                        else
-                            cnt = 0;
-                    } else {
-system.debug('2.5');
-                        // not deleting add oen
-                        cnt++;
-                    }
-system.debug('2.6');
+                    cnt = SObjectCntMap.get(T.whatid) + 1;
                     SObjectCntMap.put(T.whatId, cnt);
-system.debug('2.7');
                 } else {
-system.debug('2.8');
                     E =  (Event) a;
-                    cnt = SObjectCntMap.get(E.whatid); // find id in list
-                    if (isDelete) {
-system.debug('2.9 cnt ' + cnt);
-                        if (cnt > 0)
-                            cnt--;
-                        else
-                            cnt = 0;
-                    } else {
-system.debug('2.10');
-                        // not deleting add oen
-                        cnt++;
-                    }
-system.debug('2.11');
+                    cnt = SObjectCntMap.get(E.whatid) + 1; // find id in list
                     SObjectCntMap.put(E.whatId, cnt);
-system.debug('2.12');
                 }
             }
         }
-system.debug('3');
 
         if (whoActivities.size() > 0) {
             for (SObject a : whoActivities) {
                 // loop through all whatid activities
                 if (isTask){
                     T = (Task) a; // convert SObject whatActivities to Task
-                    cnt = SObjectCntMap.get(T.whoid); // find id in list
-                    if (isDelete) {
-                        if (cnt > 0)
-                            cnt--;
-                        else
-                            cnt = 0;
-                    } else {
-                        // not deleting add oen
-                        cnt++;
-                    }
+                    cnt = SObjectCntMap.get(T.whoid) + 1; // find id in list
                     SObjectCntMap.put(T.whoId, cnt);
                 } else {
                     E =  (Event) a;
-                    cnt = SObjectCntMap.get(E.whoid); // find id in list
-                    if (isDelete) {
-                        if (cnt > 0)
-                            cnt--;
-                        else
-                            cnt = 0;
-                    } else {
-                        // not deleting add oen
-                        cnt++;
-                    }
+                    cnt = SObjectCntMap.get(E.whoid) + 1; // find id in list
                     SObjectCntMap.put(E.whoId, cnt);
                 }
             }
@@ -278,19 +181,20 @@ system.debug('3');
         }
     }
 
-    public static void BeforeDelete (List <SObject> activities) {
-        DoActivities (activities, true);
+
+    public static void AfterDelete (List <SObject> activities) {
+        DoActivities (activities);
     }
 
     public static void AfterInsert (List <SObject> activities) {
-        DoActivities (activities, false);
+        DoActivities (activities);
     }
 
     public static void AfterUndelete (List <SObject> activities) {
-        DoActivities (activities, false);
+        DoActivities (activities);
     }
 
-    private static void DoActivities (List <SObject> activities, boolean isDelete) {
+    private static void DoActivities (List <SObject> activities) {
 
 
         Id[] Ids = new Id[0]; // holds who what ids
@@ -329,8 +233,13 @@ system.debug('3');
         }
 
         if (Ids.size() > 0) {
+            // Remove duplicates
+            Set <ID> noDupIds = new Set <ID>();
+            noDupIds.addAll(Ids);
+            Ids.clear();
+            Ids.addAll(noDupIds);
             // Off to figure out how many activities are assocated with account, opportunity, contact and lead
-            buildSObjectList(Ids, isTask, isDelete);
+            buildSObjectList(Ids, isTask);
         }
     }
 }

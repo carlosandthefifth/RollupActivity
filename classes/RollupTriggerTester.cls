@@ -217,7 +217,6 @@ WhoId     and     WhatID
         checkAccount = [SELECT a.Event_Count__c FROM Account a where id =:NewAccount.id];
         system.assertequals(1, checkAccount.Event_Count__c, 'test 1 - insert - checkAccount.Event_Count__c does not equal 1');
 
-system.debug('before delete: ' + checkAccount.Event_Count__c);
         delete E;
         checkAccount = [SELECT a.Event_Count__c FROM Account a where id =:NewAccount.id];
         system.assertequals(0, checkAccount.Event_Count__c, 'test 1 - delete - checkAccount.Event_Count__c does not equal 0');
@@ -590,7 +589,7 @@ system.debug('before delete: ' + checkAccount.Event_Count__c);
     }
 
     static testMethod void BulkDMLEventTEST() {
-        // Task Test #1 - account null
+        // Event Test #1 - account null
         Event[] Events = new Event[] {};
         Event E;
         Integer cnt;
@@ -800,6 +799,42 @@ system.debug('before delete: ' + checkAccount.Event_Count__c);
         delete T;
         undelete T;
  */
+    }
+
+    static testMethod void DMLEventDeleteTEST() {
+        Event[] Events = new Event[] {};
+        Event[] eToDelete = new Event[] {};
+
+        Event E;
+        Integer cnt;
+        Integer numORecords = 5;
+        Integer minusRecords;
+
+        newAccount = new Account(name='test');
+        insert newAccount;
+
+        for (cnt = 0; cnt < numORecords; cnt++) {
+        	E = new Event(subject='test', startDateTime=dateTime.now()+10, endDateTime=dateTime.now()+20,  whatid=newAccount.id);
+        	Events.add(E);
+        }
+
+        test.starttest();
+        insert Events;
+
+    	checkAccount = [SELECT a.Event_Count__c FROM Account a where id =:NewAccount.id];
+    	system.assertequals(numORecords, checkAccount.Event_Count__c, 'test 1 - insert - checkAccount.Event_Count__c does not equal 1');
+
+		minusRecords = (Integer) (numORecords / 2);
+        for (cnt = 0; cnt < minusRecords; cnt ++) {
+            etoDelete.add(Events[cnt]);
+        }
+        delete eToDelete;
+        checkAccount = [SELECT a.Event_Count__c FROM Account a where id =:NewAccount.id];
+        system.assertequals(numORecords - minusRecords, checkAccount.Event_Count__c, 'test 1 - delete - checkAccount.Event_Count__c does not equal ' + (numORecords - minusRecords));
+		test.stoptest();
+
+        Events.clear();
+
     }
 
 }
