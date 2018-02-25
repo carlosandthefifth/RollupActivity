@@ -9,6 +9,8 @@ trigger RollupTriggerTask on Task (after delete, after insert, after undelete) {
     if (trigger.isDelete)
         RollupTriggerHelper.AfterDelete(Trigger.old);
 
-    if (trigger.isUpdate)
+    if (trigger.isUpdate) {
+        RollupTriggerHelper.AfterUpdate (Trigger.old);
         RollupTriggerHelper.AfterUpdate (Trigger.new);
+    }
 }

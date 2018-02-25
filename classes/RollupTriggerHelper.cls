@@ -7,8 +7,8 @@ public with sharing class RollupTriggerHelper {
             February 23, 2018 - 22:39 - subtraction is not correct
             February 24, 2018 - 07:07 - subtraction corrected
              :: Todo list worry about update to task/events
-             :: We need to test more partial deletes
-
+            February 25, 2018 09:34 - on update triggers added
+            :: We need to test more partial deletes
   	*/
 
     // Comparison variables - global to helper class
@@ -86,7 +86,7 @@ public with sharing class RollupTriggerHelper {
             // At the end of this loop we will have at the most two objects
             // that we need to consider
 
-            sObjectCntMap.put(idToFind, 0); // Stuff id in map with roll up count zero
+            sObjectCntMap.put(idToFind, 0); // Stuff id in map and start all roll up counts at zero
 
             if (!isAccount) {
                 isAccount = (idToFind.getSObjectType() == accountType);

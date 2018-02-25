@@ -8,6 +8,9 @@ trigger RollupTriggerEvent on Event (after delete, after insert, after undelete,
     if (trigger.isDelete)
 		RollupTriggerHelper.AfterDelete (Trigger.old);  // trigger.old contains what is to be deleted and trigger new is null
 
-    if (trigger.isUpdate)
-        RollupTriggerHelper.AfterUpdate (Trigger.new);  
+    if (trigger.isUpdate) {
+        // requires two updates
+        RollupTriggerHelper.AfterUpdate (Trigger.old);
+        RollupTriggerHelper.AfterUpdate (Trigger.new);
+    }
 }
