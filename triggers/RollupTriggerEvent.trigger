@@ -1,4 +1,4 @@
-trigger RollupTriggerEvent on Event (after delete, after insert, after undelete) {
+trigger RollupTriggerEvent on Event (after delete, after insert, after undelete, after update) {
  	if (trigger.isInsert)
  		RollupTriggerHelper.AfterInsert (Trigger.new);
 
@@ -7,4 +7,8 @@ trigger RollupTriggerEvent on Event (after delete, after insert, after undelete)
 
     if (trigger.isDelete)
 		RollupTriggerHelper.AfterDelete (Trigger.old);
+
+    if (trigger.isUpdate)
+        RollupTriggerHelper.AfterDelete (Trigger.new);
+        
 }

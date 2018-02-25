@@ -24,6 +24,24 @@ public with sharing class RollupTriggerHelper {
     private static boolean isEvent = false;
     private static boolean isTask = false;
 
+    // Triger access methods
+    public static void AfterDelete (List <SObject> activities) {
+        DoActivities (activities);
+    }
+
+    public static void AfterInsert (List <SObject> activities) {
+        DoActivities (activities);
+    }
+
+    public static void AfterUndelete (List <SObject> activities) {
+        DoActivities (activities);
+    }
+
+    public static void AfterUpdate (List <SObject> activities) {
+        DoActivities (activities);
+    }
+
+
     private static void buildSObjectList(ID[] idsToFind, boolean isTask) {
         /*
             Handles the heavy lifting of counting tasks/events for accounts, opportunities, leads and contacts
@@ -179,19 +197,6 @@ public with sharing class RollupTriggerHelper {
             }
             Database.update(updateOpportunities);   // commit to database
         }
-    }
-
-
-    public static void AfterDelete (List <SObject> activities) {
-        DoActivities (activities);
-    }
-
-    public static void AfterInsert (List <SObject> activities) {
-        DoActivities (activities);
-    }
-
-    public static void AfterUndelete (List <SObject> activities) {
-        DoActivities (activities);
     }
 
     private static void DoActivities (List <SObject> activities) {
