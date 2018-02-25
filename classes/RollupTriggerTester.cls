@@ -24,6 +24,7 @@ WhoId     and     WhatID
 */
 
     private static Account	newAccount;
+    private static Account newTargetAccount;
     private static Opportunity newOpportunity;
     private static Contact	newContact;
     private static Lead newLead;
@@ -832,6 +833,54 @@ WhoId     and     WhatID
         checkAccount = [SELECT a.Event_Count__c FROM Account a where id =:NewAccount.id];
         system.assertequals(numORecords - minusRecords, checkAccount.Event_Count__c, 'test 1 - delete - checkAccount.Event_Count__c does not equal ' + (numORecords - minusRecords));
 		test.stoptest();
+
+        Events.clear();
+
+    }
+
+    static testMethod void DMLEventUpdateTEST() {
+        Event[] Events = new Event[] {};
+        Event[] eToUpdate = new Event[] {};
+
+        Event E;
+        Integer cnt;
+        Integer numORecords = 6;
+        Integer minusRecords;
+
+        newAccount = new Account(name='test');
+        insert newAccount;
+
+        newTargetAccount = new Account(name='target');
+        insert newTargetAccount;
+
+        for (cnt = 0; cnt < numORecords; cnt++) {
+        	E = new Event(subject='test', startDateTime=dateTime.now()+10, endDateTime=dateTime.now()+20,  whatid=newAccount.id);
+        	Events.add(E);
+        }
+
+        test.starttest();
+        insert Events;
+
+    	checkAccount = [SELECT a.Event_Count__c FROM Account a where id =:NewAccount.id];
+    	system.assertequals(numORecords, checkAccount.Event_Count__c, 'test 1 - insert - checkAccount.Event_Count__c does not equal 1');
+
+
+        minusRecords = (Integer) (numORecords / 2);
+        for (cnt = 0; cnt < minusRecords; cnt ++) {
+            Events[cnt].whatId = newTargetAccount.id;
+        }
+
+        for (Event oe : Events) etoUpdate.add(oe);
+
+        update eToUpdate;
+
+        checkAccount = [SELECT a.Event_Count__c FROM Account a where id =:newAccount.id];
+        system.assertequals(numORecords - minusRecords, checkAccount.Event_Count__c, 'test 1 - update - checkAccount.Event_Count__c does not equal ' + (numORecords - minusRecords));
+
+        checkAccount = [SELECT a.Event_Count__c FROM Account a where id =:newTargetAccount.id];
+        system.assertequals(numORecords - minusRecords, checkAccount.Event_Count__c, 'test 1.1 - update - checkAccount.Event_Count__c does not equal ' + (numORecords - minusRecords));
+		test.stoptest();
+
 
         Events.clear();
 
