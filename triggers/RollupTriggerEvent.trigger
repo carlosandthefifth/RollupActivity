@@ -9,6 +9,6 @@ trigger RollupTriggerEvent on Event (after delete, after insert, after undelete,
 		RollupTriggerHelper.AfterDelete (Trigger.old);
 
     if (trigger.isUpdate)
-        RollupTriggerHelper.AfterDelete (Trigger.new);
-        
+        RollupTriggerHelper.AfterUpdate (Trigger.new);
+
 }
